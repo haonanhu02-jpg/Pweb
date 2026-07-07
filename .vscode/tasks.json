@@ -1,0 +1,59 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "API: FastAPI dev server",
+      "type": "process",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "uvicorn",
+        "tender_poc.web_api:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8000",
+        "--reload"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PYTHONPATH": "${workspaceFolder}\\src"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Web: Vite dev server",
+      "type": "process",
+      "command": "npm",
+      "args": [
+        "run",
+        "dev",
+        "--",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "5173"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}\\web",
+        "env": {
+          "VITE_API_BASE_URL": "http://localhost:8000"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Run API + Web",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "API: FastAPI dev server",
+        "Web: Vite dev server"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

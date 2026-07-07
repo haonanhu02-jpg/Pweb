@@ -1,0 +1,54 @@
+name: tender-poc-crawlab
+
+services:
+  mongo:
+    image: mongo:4.2
+    restart: unless-stopped
+    volumes:
+      - ./docker-data/mongo:/data/db
+
+  crawlab:
+    build:
+      context: .
+      dockerfile: docker/crawlab/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      CRAWLAB_NODE_MASTER: "Y"
+      CRAWLAB_MONGO_HOST: mongo
+      TENDER_POC_DATA_DIR: /data/tender-poc
+      PYTHONPATH: /opt/tender-poc/src
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - ./:/opt/tender-poc:ro
+      - ./data:/data/tender-poc
+      - ./docker-data/crawlab:/root/.crawlab
+    depends_on:
+      - mongo
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      TENDER_POC_DATA_DIR: /data/tender-poc
+      PYTHONPATH: /opt/tender-poc/src
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - ./data:/data/tender-poc
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - api
